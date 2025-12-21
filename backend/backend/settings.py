@@ -1,16 +1,17 @@
 from pathlib import Path
 from datetime import timedelta
+import os
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+from dotenv import load_dotenv
+load_dotenv(BASE_DIR / '.env')
 
-SECRET_KEY = 'django-insecure-k7+nx1+&qg4bo&*+o+h5%-mz!jan#vht#7f@oq&c=7-icu@$r1'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True')
 
-ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-]
+ALLOWED_HOSTS = ["*"]
 
 
 INSTALLED_APPS = [
@@ -91,7 +92,6 @@ USE_TZ = True
 
 
 STATIC_URL = 'static/'
-
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_METHODS = [
