@@ -55,7 +55,8 @@ class LoginAPIView(APIView):
                 "user": {
                     "id": user.id,
                     "email": user.email,
-                    "username": user.username
+                    "username": user.username,
+                    "balance": user.wallet.balance
                 }
             },
             status=status.HTTP_200_OK
@@ -69,7 +70,7 @@ class TransferAPIView(APIView):
         sender_wallet = request.user.wallet
         receiver_email = request.data["receiver_email"]
         amount = Decimal(request.data["amount"])
-
+        receiver = User.objects.get(email=receiver_email)
         # if request.user.email == receiver_email:
         #     return Response({"error": "You cannot transfer money to yourself"},status=400)
 
@@ -86,7 +87,7 @@ class TransferAPIView(APIView):
 
                 if sender_wallet.balance < amount:
                     raise ValueError("Insufficient balance")
-                receiver = User.objects.get(email=receiver_email)
+                
                 sender_wallet.balance -= amount
                 receiver_wallet.balance += amount
 

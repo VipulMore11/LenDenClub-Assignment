@@ -41,7 +41,7 @@ export default function Signup() {
 
     setLoading(true);
     try {
-      await api.post("/signup/", { email, password });
+      await api.post("/signup/", { email, username, password });
       setSuccess("Signup successful! Redirecting to login...");
       setTimeout(() => navigate("/"), 2000);
     } catch (err) {

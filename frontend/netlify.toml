@@ -1,0 +1,11 @@
+# Netlify configuration to build and publish the frontend React app
+[build]
+  base = "frontend"
+  publish = "frontend/build"
+  command = "npm run build --prefix frontend"
+
+[context.production.environment]
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

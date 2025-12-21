@@ -7,7 +7,18 @@ import TransactionTable from "../components/TransactionTable";
 
 export default function Dashboard() {
   const [transactions, setTransactions] = useState([]);
-  const [balance, setBalance] = useState(0);
+  const [balance, setBalance] = useState(() => {
+    try {
+      const stored = localStorage.getItem("user");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed?.balance != null) return Number(parsed.balance);
+      }
+    } catch (e) {
+      console.error("Failed to parse user from localStorage", e);
+    }
+    return 0;
+  });
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
@@ -34,6 +45,17 @@ export default function Dashboard() {
       setTransactions(res.data);
       if (res.data.length > 0) {
         setBalance(res.data[0].balance);
+      } else {
+        // No transactions returned: fall back to stored user balance (if any)
+        try {
+          const stored = localStorage.getItem("user");
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            if (parsed?.balance != null) setBalance(Number(parsed.balance));
+          }
+        } catch (e) {
+          console.error("Failed to parse user from localStorage", e);
+        }
       }
     } catch (err) {
       setError("Failed to load transactions. Please try again.");
