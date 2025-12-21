@@ -86,3 +86,6 @@ secrets.json
 
 # Keep migrations (committed) but ignore their caches
 **/migrations/__pycache__/
+
+frontend/node_modules/
+frontend/build/

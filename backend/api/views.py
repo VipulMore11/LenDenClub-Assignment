@@ -15,13 +15,14 @@ from .models import Wallet, TransactionLog
 class SignupAPIView(APIView):
     def post(self, request):
         email = request.data.get("email")
+        username = request.data.get("username")
         password = request.data.get("password")
 
         if User.objects.filter(email=email).exists():
             return Response({"error": "User already exists"}, status=400)
 
         user = User.objects.create_user(
-            username=email,
+            username=username,
             password=password,
             email=email
         )
