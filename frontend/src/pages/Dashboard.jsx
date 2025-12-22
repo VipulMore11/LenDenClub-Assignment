@@ -73,7 +73,7 @@ export default function Dashboard() {
   if (!user?.id) return;
 
   const ws = new WebSocket(
-    `ws://127.0.0.1:8001/ws/transactions/?user_id=${user.id}`
+    `${process.env.REACT_APP_WS_BASE_URL}/ws/transactions/?user_id=${user.id}`
   );
 
   ws.onopen = () => {
