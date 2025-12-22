@@ -1,37 +1,29 @@
-# Production Backend Dockerfile - LumaPay Django API
-
 FROM python:3.11-slim
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1
+# Environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
+# Set work directory
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install system dependencies (optional but recommended)
+RUN apt-get update && apt-get install -y \
     build-essential \
-    libpq-dev \
-    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy and install Python dependencies
-COPY backend/requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy Django project
-COPY backend/ .
+# Copy project
+COPY . .
 
-# Create non-root user for security
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
-USER appuser
+# Collect static files
+RUN python manage.py collectstatic --noinput
 
-# Run migrations and collect static files
-RUN python manage.py migrate --noinput || true && \
-    python manage.py collectstatic --noinput || true
-
-# Expose port
+# Expose Daphne port
 EXPOSE 8000
 
-# Start Gunicorn with production settings
-CMD ["gunicorn", "backend.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4", "--worker-class", "sync", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-"]
+# Start Daphne (ASGI server)
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "backend.asgi:application"]
