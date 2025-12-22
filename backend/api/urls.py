@@ -8,4 +8,5 @@ urlpatterns = [
     path("transfer/", TransferAPIView.as_view()),
     path("transactions/", TransactionHistoryAPIView.as_view()),
 
+
 ]

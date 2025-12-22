@@ -1,14 +1,18 @@
+import json
 from decimal import Decimal
 from django.db import transaction
 from django.db.models import Q
-from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
 
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
+
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 from .models import Wallet, TransactionLog
 
@@ -78,8 +82,8 @@ class TransferAPIView(APIView):
             with transaction.atomic():
                 sender_wallet = Wallet.objects.select_for_update().get(user=request.user)
 
-                if request.user.email.lower() == receiver_email.lower():
-                    raise ValueError("Self-transfer is not allowed")
+                # if request.user.email.lower() == receiver_email.lower():
+                #     raise ValueError("Self-transfer is not allowed")
 
                 receiver_wallet = Wallet.objects.select_for_update().get(
                     user__email=receiver_email
@@ -100,6 +104,17 @@ class TransferAPIView(APIView):
                     amount=amount,
                     status="SUCCESS"
                 )
+                # print("SENDING WEBSOCKET EVENT")
+                channel_layer = get_channel_layer()
+
+                async_to_sync(channel_layer.group_send)(
+                    f"user_{receiver.id}",
+                    {
+                        "type": "transaction_event",
+                        "message": "Money received"
+                    }
+                )
+                # print("WEBSOCKET EVENT SENT")
 
             return Response({"message": "Transfer successful"}, status=200)
 

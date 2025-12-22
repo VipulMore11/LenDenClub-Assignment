@@ -1,4 +1,4 @@
-# Production Backend Dockerfile - LenDenClub Django API
+# Production Backend Dockerfile - LumaPay Django API
 
 FROM python:3.11-slim
 

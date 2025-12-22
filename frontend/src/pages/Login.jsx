@@ -8,6 +8,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -41,44 +42,78 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 p-4">
-      <form className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md" onSubmit={handleLogin}>
-        <h1 className="text-2xl font-bold text-center mb-6">Login to LenDenClub</h1>
-
-        {error && <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded mb-4">{error}</div>}
-
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-semibold mb-2">Email</label>
-          <input
-            id="email"
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={loading}
-            className="w-full px-4 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-300"
-          />
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-white">
+      <header className="py-4 px-6 flex items-center justify-between max-w-6xl mx-auto">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center text-white font-bold">L</div>
+          <div className="text-lg font-semibold">LumaPay</div>
         </div>
-
-        <div className="mb-4">
-          <label htmlFor="password" className="block text-sm font-semibold mb-2">Password</label>
-          <input
-            id="password"
-            type="password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={loading}
-            className="w-full px-4 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-300"
-          />
+        <div className="hidden sm:flex items-center gap-4">
+          <div className="text-sm text-gray-600">New to LumaPay?</div>
+          <Link to="/signup" className="px-4 py-1 bg-white rounded-md text-sm font-medium shadow-sm">Sign up</Link>
         </div>
+      </header>
 
-        <button type="submit" disabled={loading} className="w-full py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-md font-semibold hover:shadow">
-          {loading ? "Logging in..." : "Login"}
-        </button>
+      <main className="flex items-center justify-center py-12 px-4">
+        <div className="w-full max-w-md">
+          <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-10">
+            <h2 className="text-3xl font-extrabold text-center text-gray-900">Welcome back</h2>
+            <p className="text-center text-sm text-gray-500 mt-2 mb-6">Please enter your details to sign in.</p>
 
-        <p className="text-center text-sm text-gray-600 mt-4">Don't have an account? <Link to="/signup" className="text-indigo-600 font-semibold">Signup</Link></p>
-      </form>
+            {error && <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded mb-4">{error}</div>}
+
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email address</label>
+                <div className="mt-1 relative">
+                  <input
+                    id="email"
+                    type="email"
+                    placeholder="example@gmail.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={loading}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between">
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+                </div>
+                <div className="mt-1 relative">
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={loading}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((s) => !s)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-600 hover:text-gray-800"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? "Hide" : "Show"}
+                  </button>
+                </div>
+              </div>
+
+              <button type="submit" disabled={loading} className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold shadow-lg">
+                {loading ? "Logging in..." : "Login"}
+              </button>
+            </form>
+
+            <div className="mt-6">
+              <p className="text-center text-sm text-gray-600 mt-6">Don't have an account? <Link to="/signup" className="text-indigo-600 font-semibold">Sign up</Link></p>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
