@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
@@ -33,7 +33,7 @@ export default function Dashboard() {
     }
   }, [navigate]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
@@ -63,38 +63,38 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchData();
   }, [typeFilter, statusFilter]);
 
   useEffect(() => {
-  if (!user?.id) return;
+    fetchData();
+  }, [fetchData]);
 
-  const ws = new WebSocket(
-    `${process.env.REACT_APP_WS_BASE_URL}/ws/transactions/?user_id=${user.id}`
-  );
+  useEffect(() => {
+    if (!user?.id) return;
 
-  ws.onopen = () => {
-    console.log("WS OPEN");
-  };
+    const ws = new WebSocket(
+      `${process.env.REACT_APP_WS_BASE_URL}/ws/transactions/?user_id=${user.id}`
+    );
 
-  ws.onmessage = (event) => {
-    console.log("WS MESSAGE", event.data);
-    fetchData(); // 🔥 refresh transactions
-  };
+    ws.onopen = () => {
+      console.log("WS OPEN");
+    };
 
-  ws.onclose = () => {
-    console.log("WS CLOSED");
-  };
+    ws.onmessage = (event) => {
+      console.log("WS MESSAGE", event.data);
+      fetchData(); // 🔥 refresh transactions
+    };
 
-  ws.onerror = (err) => {
-    console.error("WS ERROR", err);
-  };
+    ws.onclose = () => {
+      console.log("WS CLOSED");
+    };
 
-  return () => ws.close();
-}, [user?.id]);
+    ws.onerror = (err) => {
+      console.error("WS ERROR", err);
+    };
+
+    return () => ws.close();
+  }, [user?.id, fetchData]);
 
 
   const handleLogout = () => {

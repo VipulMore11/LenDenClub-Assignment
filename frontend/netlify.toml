@@ -1,7 +1,7 @@
 [build]
   base = "frontend"
   publish = "build"
-  command = "npm run build"
+  command = "npm --f run build"
 
 # React Router support (SPA fallback)
 [[redirects]]
