@@ -14,41 +14,31 @@ from rest_framework.response import Response
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
-from .models import Wallet, TransactionLog
+from .models import Wallet, TransactionLog, UserProfile
+from .serializers import SignupSerializer, LoginSerializer
 
 class SignupAPIView(APIView):
     def post(self, request):
-        email = request.data.get("email")
-        username = request.data.get("username")
-        password = request.data.get("password")
+        serializer = SignupSerializer(data=request.data)
 
-        if User.objects.filter(email=email).exists():
-            return Response({"error": "User already exists"}, status=400)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        user = User.objects.create_user(
-            username=username,
-            password=password,
-            email=email
+        serializer.save()
+
+        return Response(
+            {"message": "User registered successfully"},
+            status=status.HTTP_201_CREATED
         )
-
-        Wallet.objects.create(user=user, balance=1000) 
-
-        return Response({"message": "User registered successfully"}, status=201)
 
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        email = request.data.get("email")
-        password = request.data.get("password")
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-        if not email or not password:
-            return Response({"error": "Email and password are required"},status=400)
-        user_obj = User.objects.get(email=email)
-        user = authenticate(username=user_obj.username, password=password)
-
-        if user is None:
-            return Response({"error": "Invalid credentials"},status=401)
+        user = serializer.validated_data
 
         refresh = RefreshToken.for_user(user)
 
@@ -66,32 +56,52 @@ class LoginAPIView(APIView):
             status=status.HTTP_200_OK
         )
 
+class ProfileAPIView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request):
+        user = request.user
+        userprofile = UserProfile.objects.get(user=user)
+        return Response(
+            {
+                "user": {
+                    "id": user.id,
+                    "email": user.email,
+                    "username": user.username,
+                    "upi_id": userprofile.upi_id,
+                    "balance": user.wallet.balance,
+                }
+            },
+            status=status.HTTP_200_OK
+        )
+    
 class TransferAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         sender_wallet = request.user.wallet
-        receiver_email = request.data["receiver_email"]
+        sender_upi_id = request.user.profile.upi_id
+        receiver_upi_id = request.data["receiver_upi_id"]
+        pin_number = request.data["pin_number"]
         amount = Decimal(request.data["amount"])
-        receiver = User.objects.get(email=receiver_email)
-        # if request.user.email == receiver_email:
-        #     return Response({"error": "You cannot transfer money to yourself"},status=400)
 
+        try:
+            receiver_profile = UserProfile.objects.get(upi_id=receiver_upi_id)
+            receiver = receiver_profile.user
+        except UserProfile.DoesNotExist:
+            return Response({"error": "Receiver UPI ID not found"}, status=404)
+
+        if sender_upi_id == receiver_upi_id:
+            return Response({"error": "You cannot transfer money to yourself"}, status=400)
+        if pin_number != str(request.user.profile.pin_number):
+            return Response({"error": "Invalid PIN number"}, status=400)
         try:
             with transaction.atomic():
                 sender_wallet = Wallet.objects.select_for_update().get(user=request.user)
-
-                # if request.user.email.lower() == receiver_email.lower():
-                #     raise ValueError("Self-transfer is not allowed")
-
-                receiver_wallet = Wallet.objects.select_for_update().get(
-                    user__email=receiver_email
-                )
+                receiver_wallet = Wallet.objects.select_for_update().get(user=receiver)
 
                 if sender_wallet.balance < amount:
                     raise ValueError("Insufficient balance")
-                
                 sender_wallet.balance -= amount
                 receiver_wallet.balance += amount
 
@@ -101,12 +111,19 @@ class TransferAPIView(APIView):
                 TransactionLog.objects.create(
                     sender=request.user,
                     receiver=receiver,
+                    sender_upi_id=sender_upi_id,
+                    receiver_upi_id=receiver_upi_id,
                     amount=amount,
                     status="SUCCESS"
                 )
-                # print("SENDING WEBSOCKET EVENT")
                 channel_layer = get_channel_layer()
-
+                async_to_sync(channel_layer.group_send)(
+                    f"user_{request.user.id}",
+                    {
+                        "type": "transaction_event",
+                        "message": "Transfer successful"
+                    }
+                )
                 async_to_sync(channel_layer.group_send)(
                     f"user_{receiver.id}",
                     {
@@ -114,22 +131,19 @@ class TransferAPIView(APIView):
                         "message": "Money received"
                     }
                 )
-                # print("WEBSOCKET EVENT SENT")
-
             return Response({"message": "Transfer successful"}, status=200)
 
         except Exception as e:
             TransactionLog.objects.create(
                 sender=request.user,
                 receiver=receiver,
+                sender_upi_id=sender_upi_id,
+                receiver_upi_id=receiver_upi_id,
                 amount=amount,
                 status="FAILED",
                 failure_reason=str(e)
             )
-
-            return Response(
-                {"error": str(e)},
-                status=400)
+            return Response({"error": str(e)}, status=400)
 
 class TransactionHistoryAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -148,10 +162,14 @@ class TransactionHistoryAPIView(APIView):
         wallet = Wallet.objects.get(user=request.user)
         data = [{
             "sender": log.sender.email,
+            "sender_upi_id": log.sender_upi_id,
             "receiver": log.receiver.email,
+            "receiver_username": log.receiver.username,
+            "receiver_upi_id": log.receiver_upi_id,
             "balance": wallet.balance,
             "amount": log.amount,
             "status": log.status,
+            "failure_reason": log.failure_reason,
             "timestamp": log.created_at
         } for log in logs]
 

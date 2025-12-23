@@ -2,30 +2,32 @@
 import { useState } from "react";
 import api from "../api/axios";
 
-export default function TransferForm({ onSuccess, balance }) {
-  const [receiverEmail, setReceiverEmail] = useState("");
+export default function TransferForm({ balance }) {
+  const [pin, setPin] = useState("");
+  const [receiverUpiId, setReceiverUpiId] = useState("");
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-
-  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
 
-    if (!receiverEmail || !amount) {
+    if (!receiverUpiId || !amount) {
       setError("All fields are required");
       return;
     }
 
-    if (!validateEmail(receiverEmail)) {
-      setError("Please enter a valid email address");
+    if (!/^[\w.-]+@[\w.-]+$/.test(receiverUpiId)) {
+      setError("Please enter a valid UPI ID");
       return;
     }
-
+    if (!pin) {
+      setError("Transaction PIN is required");
+      return;
+    }
     const amountNum = parseFloat(amount);
     if (isNaN(amountNum) || amountNum <= 0) {
       setError("Amount must be a positive number");
@@ -40,15 +42,16 @@ export default function TransferForm({ onSuccess, balance }) {
     setLoading(true);
     try {
       await api.post("/transfer/", {
-        receiver_email: receiverEmail,
+        receiver_upi_id: receiverUpiId,
         amount: amountNum,
+        pin_number: pin,
       });
       setSuccess(`Successfully transferred ₹${amountNum.toFixed(2)}`);
-      setReceiverEmail("");
+      setReceiverUpiId("");
       setAmount("");
       setTimeout(() => {
         setSuccess("");
-        onSuccess();
+        // onSuccess();
       }, 2000);
     } catch (err) {
       setError(err.response?.data?.error || "Transfer failed. Please try again.");
@@ -64,13 +67,13 @@ export default function TransferForm({ onSuccess, balance }) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         <div>
-          <label htmlFor="receiverEmail" className="block text-sm font-medium text-gray-700 mb-2">Receiver Email</label>
+          <label htmlFor="receiverUpiId" className="block text-sm font-medium text-gray-700 mb-2">Receiver UPI ID</label>
           <input
-            id="receiverEmail"
-            type="email"
-            placeholder="example@gmail.com"
-            value={receiverEmail}
-            onChange={(e) => setReceiverEmail(e.target.value)}
+            id="receiverUpiId"
+            type="text"
+            placeholder="yourname@bank"
+            value={receiverUpiId}
+            onChange={(e) => setReceiverUpiId(e.target.value)}
             disabled={loading}
             className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
           />
@@ -89,6 +92,26 @@ export default function TransferForm({ onSuccess, balance }) {
             className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
           />
         </div>
+        <div>
+          <label
+            htmlFor="pin"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Transaction PIN
+          </label>
+          <input
+            id="pin"
+            type="password"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            placeholder="••••"
+            value={pin}
+            onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
+            disabled={loading}
+            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+          />
+        </div>
+
       </div>
 
       <button type="submit" disabled={loading} className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-shadow flex items-center justify-center gap-2">

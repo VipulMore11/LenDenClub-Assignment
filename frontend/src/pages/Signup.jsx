@@ -7,6 +7,8 @@ export default function Signup() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [upiId, setUpiId] = useState("");
+  const [pinCode, setPinCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -21,7 +23,7 @@ export default function Signup() {
     setError("");
     setSuccess("");
 
-    if (!email || !password || !confirmPassword) {
+    if (!email || !password || !confirmPassword || !upiId) {
       setError("All fields are required");
       return;
     }
@@ -43,7 +45,7 @@ export default function Signup() {
 
     setLoading(true);
     try {
-      await api.post("/signup/", { email, username, password });
+      await api.post("/signup/", { email, username, password, upi_id: upiId, pin_number: pinCode });
       setSuccess("Signup successful! Redirecting to login...");
       setTimeout(() => navigate("/"), 2000);
     } catch (err) {
@@ -99,6 +101,30 @@ export default function Signup() {
                   placeholder="example@gmail.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  disabled={loading}
+                  className="mt-1 w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                />
+              </div>
+              <div>
+                <label htmlFor="upiId" className="block text-sm font-medium text-gray-700">UPI ID</label>
+                <input
+                  id="upiId"
+                  type="text"
+                  placeholder="yourname@bank"
+                  value={upiId}
+                  onChange={(e) => setUpiId(e.target.value)}
+                  disabled={loading}
+                  className="mt-1 w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                />
+              </div>
+              <div>
+                <label htmlFor="pinCode" className="block text-sm font-medium text-gray-700">PIN Code</label>
+                <input
+                  id="pinCode"
+                  type="text"
+                  placeholder="Enter your PIN code"
+                  value={pinCode}
+                  onChange={(e) => setPinCode(e.target.value)}
                   disabled={loading}
                   className="mt-1 w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
                 />

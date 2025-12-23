@@ -6,6 +6,7 @@ import TransferForm from "../components/TransferForm";
 import TransactionTable from "../components/TransactionTable";
 
 export default function Dashboard() {
+  const [profile, setProfile] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [balance, setBalance] = useState(() => {
     try {
@@ -27,11 +28,24 @@ export default function Dashboard() {
   const { user, logout } = useAuth();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/");
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/");
+      }
+    }, [navigate]);
+    const fetchProfile = useCallback(async () => {
+    try {
+      const res = await api.get("/profile/");
+      setProfile(res.data.user);
+
+      // Keep balance in sync with backend truth
+      if (res.data.user?.balance != null) {
+        setBalance(Number(res.data.user.balance));
+      }
+    } catch (err) {
+      console.error("Failed to fetch profile", err);
     }
-  }, [navigate]);
+  }, []);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -68,6 +82,9 @@ export default function Dashboard() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+    useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -82,7 +99,8 @@ export default function Dashboard() {
 
     ws.onmessage = (event) => {
       console.log("WS MESSAGE", event.data);
-      fetchData(); // 🔥 refresh transactions
+      fetchData();
+      fetchProfile();
     };
 
     ws.onclose = () => {
@@ -112,6 +130,13 @@ export default function Dashboard() {
           </div>
           <div className="flex items-center gap-6">
             <span className="text-sm text-gray-700">{user?.username}</span>
+            <img
+              src={`https://api.dicebear.com/7.x/personas/svg?seed=${encodeURIComponent(
+                user?.username || "user"
+              )}`}
+              alt="Profile"
+              className="w-8 h-8 rounded-full border border-gray-200"
+            />
             <button onClick={handleLogout} className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors">
               Logout
             </button>
@@ -129,8 +154,18 @@ export default function Dashboard() {
                 <h3 className="text-sm font-semibold text-white/80 uppercase tracking-wide">Available Balance</h3>
               </div>
               <div className="mb-6">
-                <p className="text-4xl font-bold">₹{Number(balance || 0).toFixed(2)}</p>
+                <p className="text-4xl font-bold mb-2">
+                  ₹{Number(balance || 0).toFixed(2)}
+                </p>
+
+                <div className="flex items-center gap-2 text-sm text-white/90">
+                  <span className="font-medium">UPI ID:</span>
+                  <span className="font-mono bg-white/20 px-2 py-0.5 rounded">
+                    {profile?.upi_id || "—"}
+                  </span>
+                </div>
               </div>
+
             </div>
           </section>
           
@@ -147,7 +182,7 @@ export default function Dashboard() {
               {loading ? (
                 <div className="text-center py-4 text-gray-500">Loading...</div>
               ) : (
-                <TransferForm onSuccess={fetchData} balance={balance} />
+                <TransferForm balance={balance} />
               )}
             </div>
           </section>
@@ -189,7 +224,7 @@ export default function Dashboard() {
             ) : (
               <TransactionTable
                 transactions={transactions}
-                currentUserEmail={user?.email}
+                currentUserUpiId={user?.upi_id}
               />
             )}
           </div>
