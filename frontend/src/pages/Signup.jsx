@@ -181,7 +181,7 @@ export default function Signup() {
                 <input
                   id="pinCode"
                   type="password"
-                  placeholder="4-digit PIN"
+                  placeholder="Enter Your PIN"
                   value={pinCode}
                   onChange={(e) => setPinCode(e.target.value)}
                   disabled={loading}
