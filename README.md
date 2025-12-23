@@ -1,13 +1,20 @@
 # LumaPay — Peer-to-Peer Lending Platform
 
-A secure peer-to-peer wallet application that simulates real-time fund transfers between users while maintaining a mandatory, immutable audit log of all transactions.
+LumaPay peer-to-peer wallet application that simulates real-time fund transfers between users while maintaining a mandatory, immutable audit log of all transactions. It enables users to:
+
+-Create secure user accounts
+-Track their lending and borrowing activities
+-Transfer funds to other users securely
+-View transaction history with real-time balance updates
+-Monitor transaction status (Success/Failed)
 
 ---
 ## Hosted Links:
 - https://lumapay.netlify.app/
 
 ## Demo Video
-- Link:- 
+- Link:- https://youtu.be/Sej-m6td35Q
+
 ## Table of Contents
 
 - [Project Overview](#project-overview)  
@@ -207,11 +214,27 @@ Note: In the project codebase the frontend may also use Vite env keys (e.g. VITE
 
 ## AI Tool Usage Log
 
-Tools used during development:
-- v0 — Frontend UI generation; Tailwind scaffolding
-- ChatGPT — Debugging, backend fixes, WebSocket logic, error handling
-- GitHub Copilot — Boilerplate models, serializers, views
+Specific Tasks Where AI Tools Were Used
 
-AI assistance was used to improve productivity while keeping manual review and security checks.
+### Frontend UI Generation
+- Used **v0** to generate initial frontend UI layouts and Tailwind CSS scaffolding.  
+- Helped speed up component structure and styling setup.
 
+### Backend Debugging & Logic Improvements
+- Used **ChatGPT** for debugging backend issues, fixing API-related bugs, and refining error-handling logic.  
+- Assisted in implementing and validating WebSocket logic for real-time updates.  
+- Helped refactor backend code blocks for better readability and correctness.
+
+### Boilerplate Code Generation
+- Used **GitHub Copilot** to generate boilerplate code for Django models, serializers, and views.  
+- Reduced repetitive manual coding while keeping final control with manual review.
+
+All AI-generated outputs were manually reviewed, tested, and validated to ensure correctness, security, and adherence to project requirements.
+
+## Effectiveness Score
+
+**Score:** 4 out of 5
+
+### Justification
+The use of AI tools significantly reduced development time by accelerating boilerplate generation, UI scaffolding, and debugging workflows. While AI-generated code required manual verification and refinement—particularly for business logic and security-sensitive areas the overall productivity gain was substantial, resulting in a faster and more structured development process.
 ---
