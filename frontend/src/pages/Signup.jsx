@@ -35,8 +35,8 @@ export default function Signup() {
       return
     }
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters")
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters")
       return
     }
 
@@ -51,7 +51,7 @@ export default function Signup() {
       setSuccess("Account created successfully! Redirecting to login...")
       setTimeout(() => navigate("/"), 2000)
     } catch (err) {
-      setError(err.response?.data?.error || "Signup failed. Email may already exist.")
+      setError(err.response?.data?.error || "Inavlid Inputs. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -198,7 +198,7 @@ export default function Signup() {
                   <input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="At least 6 characters"
+                    placeholder="At least 8 characters"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={loading}

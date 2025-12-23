@@ -243,7 +243,7 @@ export default function Dashboard() {
                 <p className="text-sm text-gray-500 mt-3">Loading transactions...</p>
               </div>
             ) : (
-              <TransactionTable transactions={transactions} currentUserUpiId={user?.upi_id} />
+              <TransactionTable transactions={transactions} currentUserUpiId={profile?.upi_id} />
             )}
           </div>
         </section>

@@ -1,140 +1,96 @@
-# LumaPay - Peer-to-Peer Lending Platform
+# LumaPay — Peer-to-Peer Lending Platform
 
+A secure peer-to-peer wallet application that simulates real-time fund transfers between users while maintaining a mandatory, immutable audit log of all transactions.
 
-## 📋 Table of Contents
+---
+## Hosted Links:
+- https://lumapay.netlify.app/
 
-- [Project Overview](#project-overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Setup Instructions](#setup-instructions)
-- [API Documentation](#api-documentation)
-- [Database Schema](#database-schema)
-- [Environment Configuration](#environment-configuration)
-- [Running the Application](#running-the-application)
-- [Deployment](#deployment)
-- [Contributing](#contributing)
+## Demo Video
+- Link:- 
+## Table of Contents
 
-## 🎯 Project Overview
+- [Project Overview](#project-overview)  
+- [Features](#features)  
+- [Tech Stack](#tech-stack)  
+- [Setup Instructions](#setup-instructions)  
+- [Prerequisites](#prerequisites)  
+- [Backend Setup](#backend-setup)  
+- [Frontend Setup](#frontend-setup)  
+- [API Documentation](#api-documentation)  
+- [Database Schema](#database-schema)  
+- [Environment Configuration](#environment-configuration)  
+- [Running the Application](#running-the-application)  
+- [Deployment](#deployment)  
+- [AI Tool Usage Log](#ai-tool-usage-log)  
 
-LumaPay peer-to-peer wallet application that simulates real-time fund transfers between users while maintaining a mandatory, immutable audit log of all transactions. It enables users to:
+---
+
+## Project Overview
+
+LumaPay is a peer-to-peer lending and wallet platform designed to simulate real-time financial transactions with strong emphasis on security, auditability, and user experience.
+
+Users can:
 - Create secure user accounts
-- Track their lending and borrowing activities
-- Transfer funds to other users securely
-- View transaction history with real-time balance updates
-- Monitor transaction status (Success/Failed)
+- Transfer funds in real time
+- Track sent and received transactions
+- View immutable transaction audit logs
+- Monitor transaction status (SUCCESS / FAILED)
 
+---
 
-## ✨ Features
+## Features
 
 ### Authentication & Authorization
 - User registration with email validation
-- Secure login with JWT (JSON Web Token) authentication
+- Secure login using JWT (SimpleJWT)
 - Password hashing with industry-standard algorithms
-- Protected API endpoints with token-based authorization
-- Logout functionality with token invalidation
+- Protected API endpoints
+- Logout with token invalidation
 
 ### Transaction Management
-- Send money to other users via email
-- Real-time balance updates
-- Transaction history with filtering and sorting
-- Status tracking (Success/Failed)
-- Support for sent and received transactions
-- Transaction timestamps for audit trail
+- Send money using recipient email
+- Real-time balance updates (WebSockets)
+- Transaction history with filtering & sorting
+- Status tracking (SUCCESS / FAILED)
+- Timestamped immutable audit logs
+- Separate sent & received transaction views
 
 ### User Interface
-- Responsive design (mobile, tablet, desktop)
-- Tailwind CSS for modern styling
+- Responsive UI (mobile, tablet, desktop)
+- Tailwind CSS styling
 - Real-time form validation
-- Error and success notifications
-- Loading states for better UX
+- Loading states & notifications
 - Dashboard with balance card and transaction table
 
 ### Security
-- CORS (Cross-Origin Resource Sharing) protection
-- SQL injection prevention via ORM
+- CORS protection
+- ORM-based SQL injection prevention
 - Secure password storage
-- JWT token expiration
+- JWT token expiration handling
 - Environment-based configuration
 
-## 🛠 Tech Stack
+---
 
-### Backend
-- **Framework**: Django 6.0
-- **API**: Django REST Framework
-- **Authentication**: SimpleJWT (JSON Web Tokens)
-- **Database**: Postgres
-- **Real-Time Communication**: Web Sockets
+## Tech Stack
 
-### Frontend
-- **Framework**: React 19
-- **Routing**: React Router
-- **HTTP Client**: Axios with interceptor
-- **Styling**: Tailwind CSS
-- **State Management**: React Context API
+Backend
+- Framework: Django 6.0
+- API: Django REST Framework
+- Authentication: SimpleJWT
+- Database: PostgreSQL
+- Real-Time Communications: WebSockets
 
+Frontend
+- Framework: React 19
+- Routing: React Router
+- HTTP Client: Axios (with interceptors)
+- Styling: Tailwind CSS
+- State Management: React Context API
 
-## 📁 Project Structure
+---
 
-```
-LumaPay/
-├── backend/
-│   ├── api/
-│   │   ├── migrations/
-│   │   ├── __init__.py
-│   │   ├── admin.py
-│   │   ├── apps.py
-│   │   ├── models.py          # User & Transaction models
-│   │   ├── tests.py
-│   │   ├── urls.py
-│   │   ├── views.py           # API endpoints
-│   │   └── __pycache__/
-│   ├── backend/
-│   │   ├── __init__.py
-│   │   ├── asgi.py
-│   │   ├── settings.py        # Django configuration
-│   │   ├── urls.py
-│   │   └── wsgi.py
-│   ├── db.sqlite3
-│   ├── manage.py
-│   ├── requirements.txt       # Python dependencies
-│   ├── .env.example           # Environment template
-│   ├── Dockerfile
-│   └── .gitignore
-├── frontend/
-│   ├── public/
-│   │   ├── index.html
-│   │   ├── manifest.json
-│   │   └── robots.txt
-│   ├── src/
-│   │   ├── api/
-│   │   │   └── axios.js       # HTTP client with interceptor
-│   │   ├── components/
-│   │   │   ├── TransferForm.jsx
-│   │   │   └── TransactionTable.jsx
-│   │   ├── context/
-│   │   │   └── AuthContext.jsx      # Auth state management
-│   │   ├── pages/
-│   │   │   ├── Dashboard.jsx
-│   │   │   ├── Login.jsx
-│   │   │   └── Signup.jsx
-│   │   ├── App.js
-│   │   ├── App.css
-│   │   ├── index.js
-│   │   ├── index.css
-│   │   └── setupTests.js
-│   ├── package.json
-│   ├── .env                   # Environment variables
-│   ├── Dockerfile
-│   ├── nginx.conf
-│   ├── tailwind.config.js
-│   ├── postcss.config.js
-│   └── .gitignore
-├── .gitignore
-└── README.md
-```
-
-## 🚀 Setup Instructions
+## Setup Instructions
 
 ### Prerequisites
 - Python 3.8+
@@ -143,257 +99,119 @@ LumaPay/
 - Git
 
 ### Backend Setup
+```bash
+git clone <repository-url>
+cd LumaPay/backend
+python -m venv venv
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd LumaPay
-   ```
+# macOS / Linux
+source venv/bin/activate
 
-2. **Create virtual environment**
-   ```bash
-   cd backend
-   python -m venv venv
-   if windows:
-        venv\Scripts\activate
-    else:
-        source venv/bin/activate
-   ```
+# Windows (PowerShell)
+# .\venv\Scripts\Activate.ps1
 
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
-
-5. **Run database migrations**
-   ```bash
-   python manage.py migrate
-   ```
-
-6. **Create superuser (optional, for Django admin)**
-   ```bash
-   python manage.py createsuperuser
-   ```
-
-7. **Collect static files**
-   ```bash
-   python manage.py collectstatic
-   ```
-
-8. **Run development server**
-   ```bash
-   python manage.py runserver
-   ```
-   Backend will be available at `http://127.0.0.1:8000`
+pip install -r requirements.txt
+cp .env.example .env
+python manage.py migrate
+# (Optional) create superuser
+python manage.py createsuperuser
+python manage.py runserver
+```
+Backend runs at: http://127.0.0.1:8000
 
 ### Frontend Setup
-
-1. **Install dependencies**
-   ```bash
-   cd frontend
-   npm install
-   ```
-
-2. **Set up environment variables**
-   ```bash
-   # Create .env file
-   echo "REACT_APP_API_BASE_URL=http://127.0.0.1:8000" > .env
-   ```
-
-3. **Run development server**
-   ```bash
-   npm start
-   ```
-   Frontend will be available at `http://localhost:3000`
-
-
-## 📡 API Documentation
-
-### Postman Collection :- 
+```bash
+cd frontend
+npm install
+# create .env for dev
+# Example .env:
+# REACT_APP_API_BASE_URL=http://127.0.0.1:8000
+npm start
 ```
-https://pocket-book-developers.postman.co/workspace/AlignTurtle~0d185443-c0ba-4089-a37e-f383e9833312/collection/32954460-a00b62cb-f221-424c-8d64-26d550f6f00e?action=share&creator=32954460
-```
+Frontend runs at: http://localhost:3000
 
-### Base URL
-```
-http://127.0.0.1:8000
-```
+---
 
-### Authentication Endpoints
+## API Documentation
 
-#### Sign Up
-```
-POST /signup/
-Content-Type: application/json
+Base URL (development): http://127.0.0.1:8000
 
-{
-  "email": "user@example.com",
-  "username": "john_doe",
-  "password": "secure_password",
-  "upi_id": "example@ybl",
-  "pin_number": "XXXX"
-}
+Authentication
+- POST /signup/ — Register new user
+- POST /login/ — Obtain JWT tokens
+- POST /profile/ — Get/update profile (Auth: Bearer <access_token>)
 
-Response (201):
-{
-    "message": "User registered successfully"
-}
-```
+Transactions
+- GET /transactions/ — List transactions  
+  Query params:
+  - type=SENT | RECEIVED | ALL
+  - status=SUCCESS | FAILED | ALL
+- POST /transfer/ — Transfer funds (Auth: Bearer <access_token>)
 
-#### Login
-```
-POST /login/
-Content-Type: application/json
+WebSocket Endpoint
+- ws://127.0.0.1:8000/ws/transactions/?user_id=<user_id>
 
-{
-  "email": "user@example.com",
-  "password": "secure_password"
-}
+Postman collection (example):
+https://pocket-book-developers.postman.co/workspace/AlignTurtle~0d185443-c0ba-4089-a37e-f383e9833312/collection/32954460-a00b62cb-f221-424c-8d64-26d550f6f00e
 
-Response (200):
-{
-  "access": "eyJ0eXAiOiJKV1QiLCJhbGc...",
-  "refresh": "eyJ0eXAiOiJKV1QiLCJhbGc...",
-  "user": {
-    "id": 1,
-    "email": "user@example.com",
-    "username": "john_doe",
-    "balance": 1000.00
-  }
-}
-```
+---
 
-#### Profile
-```
-POST /profile/
-Authorization: Bearer <access_token>
-
-Response (200):
-{
-  "user": {
-    "id": 1,
-    "email": "user@example.com",
-    "username": "sampleuser",
-    "upi_id": "sampleuser@bank",
-    "balance": 1500.00
-  }
-}
-```
-
-### Transaction Endpoints
-
-#### Get All Transactions
-```
-GET /transactions/
-Authorization: Bearer <access_token>
-
-Response (200):
-[
-   {
-   "sender": "user1@example.com",
-   "sender_upi_id": "user1@bank",
-   "receiver": "user2@example.com",
-   "receiver_username": "user2",
-   "receiver_upi_id": "user2@bank",
-   "balance": 1000.00,
-   "amount": 250.00,
-   "status": "SUCCESS",
-   "failure_reason": null,
-   "timestamp": "2025-01-15T10:30:45.123456Z"
-   },
-  ...
-]
-```
-
-#### Get Transactions with Filters
-```
-GET /transactions/?type=SENT&status=SUCCESS
-Authorization: Bearer <access_token>
-
-Query Parameters:
-- type: SENT | RECEIVED | ALL (default: ALL)
-- status: SUCCESS | FAILED | ALL (default: ALL)
-```
-
-#### Send Money
-```
-POST /transfer/
-Authorization: Bearer <access_token>
-Content-Type: application/json
-
-{
-  "receiver_email": "recipient@example.com",
-  "amount": 250.50,
-  "pin_number": "XXXX"
-}
-
-Response (200):
-{
-    "message": "Transfer successful"
-}
-
-Error (400):
-{
-  "error": "Insufficient balance" | "Invalid receiver email" | "Cannot send to yourself"
-}
-```
-
-## 💾 Database Schema
+## Database Schema
 
 ![alt text](image.png)
 
-## 🔧 Environment Configuration
+---
 
-### Backend (.env)
-```env
-# Django secret key (dummy value for documentation)
-SECRET_KEY=django-insecure-abcdefghijklmnopqrstuvwxyz1234567890
+## Environment Configuration
 
-# Debug mode: "True" or "False"
+Backend (.env)
+```
+SECRET_KEY=django-insecure-example
 DEBUG=False
-
-# PostgreSQL configuration (dummy values)
 POSTGRES_DB=exampledb
 POSTGRES_USER=dbuser
 POSTGRES_PASSWORD=strongpassword123
 POSTGRES_HOST=db.examplecloud.com
 POSTGRES_PORT=5432
 POSTGRES_SSLMODE=require
+```
 
-
-### Frontend (.env)
-```env
+Frontend (.env)
+```
 REACT_APP_API_BASE_URL=https://api.example.com
 REACT_APP_WS_BASE_URL=wss://ws.example.com
 ```
 
-AI Tool Usage Log
+Note: In the project codebase the frontend may also use Vite env keys (e.g. VITE_API_BASE_URL). Ensure consistency.
 
-In compliance with the assignment requirements, AI based development tools were used during the implementation of the LumaPay Real time Transaction and Audit Log System to enhance development efficiency while maintaining correctness, security, and code quality.
+---
 
-AI Assisted Tasks
-v0 (Frontend UI Generation)
+## Running the Application
 
-Generated the initial React UI structure for core screens including the dashboard, balance display, transaction table, and transfer form.
-Assisted with layout planning and Tailwind CSS based responsive design.
-Provided a starting point for UI components which were later manually reviewed and refined.
+1. Start the backend (migrations applied, .env configured)
+2. Start the frontend with correct API/WS env vars
+3. Use seeded/test accounts or register new users
+4. Perform transfers and verify immutable transactions & audit logs
 
-ChatGPT (Debugging and Development Support)
+---
 
-Assisted in debugging backend issues related to Django REST Framework authentication and permissions.
-Helped identify and resolve transaction atomicity problems during fund transfers.
-Provided guidance on handling edge cases such as insufficient balance, invalid recipients, and self transfer prevention.
-Supported clarification and validation of real time update logic using WebSockets.
-Assisted in improving API response consistency and error handling.
+## Deployment
 
-GitHub Copilot (Code Assistance)
+- Backend: Deploy Django app to preferred host (Heroku, DigitalOcean, AWS). Use environment variables for secrets and DB credentials.
+- Database: Use managed PostgreSQL in production; enable SSL & backups.
+- Frontend: Build React app and serve via CDN or static host (Netlify, Vercel).
+- WebSockets: Ensure host supports long-lived connections (or use a WebSocket gateway).
+- Use CI/CD to run tests, linting, and build steps.
 
-Used for generating boilerplate code for Django models, serializers, and API views.
-Assisted with auto completion of React components, hooks, and context based state management.
-Accelerated repetitive coding tasks such as Axios API integrations and utility functions.
+---
+
+## AI Tool Usage Log
+
+Tools used during development:
+- v0 — Frontend UI generation; Tailwind scaffolding
+- ChatGPT — Debugging, backend fixes, WebSocket logic, error handling
+- GitHub Copilot — Boilerplate models, serializers, views
+
+AI assistance was used to improve productivity while keeping manual review and security checks.
+
+---
