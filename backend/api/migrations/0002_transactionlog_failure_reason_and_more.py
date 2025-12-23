@@ -6,18 +6,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0001_initial'),
+        ("api", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='transactionlog',
-            name='failure_reason',
+            model_name="transactionlog",
+            name="failure_reason",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='transactionlog',
-            name='status',
-            field=models.CharField(choices=[('SUCCESS', 'SUCCESS'), ('FAILED', 'FAILED')], max_length=20),
+            model_name="transactionlog",
+            name="status",
+            field=models.CharField(
+                choices=[("SUCCESS", "SUCCESS"), ("FAILED", "FAILED")], max_length=20
+            ),
         ),
     ]

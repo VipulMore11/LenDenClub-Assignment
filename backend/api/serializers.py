@@ -29,22 +29,16 @@ class SignupSerializer(serializers.Serializer):
         user = User.objects.create_user(
             username=validated_data["username"],
             email=validated_data["email"],
-            password=password
+            password=password,
         )
 
-        UserProfile.objects.create(
-            user=user,
-            upi_id=upi_id,
-            pin_number=pin_number
-        )
+        UserProfile.objects.create(user=user, upi_id=upi_id, pin_number=pin_number)
 
-        Wallet.objects.create(
-            user=user,
-            balance=1000
-        )
+        Wallet.objects.create(user=user, balance=1000)
 
         return user
-    
+
+
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
@@ -58,9 +52,6 @@ class LoginSerializer(serializers.Serializer):
         except User.DoesNotExist:
             raise serializers.ValidationError("Invalid credentials")
 
-        user = authenticate(
-            username=user_obj.username,
-            password=password
-        )
+        user = authenticate(username=user_obj.username, password=password)
 
         return user

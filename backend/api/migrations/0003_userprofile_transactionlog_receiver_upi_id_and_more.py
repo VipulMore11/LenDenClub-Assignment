@@ -8,36 +8,53 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0002_transactionlog_failure_reason_and_more'),
+        ("api", "0002_transactionlog_failure_reason_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='UserProfile',
+            name="UserProfile",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('upi_id', models.CharField(max_length=100, unique=True)),
-                ('pin_number', models.IntegerField(blank=True, max_length=10, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("upi_id", models.CharField(max_length=100, unique=True)),
+                (
+                    "pin_number",
+                    models.IntegerField(blank=True, max_length=10, null=True),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='transactionlog',
-            name='receiver_upi_id',
+            model_name="transactionlog",
+            name="receiver_upi_id",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='transactionlog',
-            name='sender_upi_id',
+            model_name="transactionlog",
+            name="sender_upi_id",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AddConstraint(
-            model_name='wallet',
-            constraint=models.CheckConstraint(condition=models.Q(('balance__gte', 0)), name='wallet_balance_gte_0'),
+            model_name="wallet",
+            constraint=models.CheckConstraint(
+                condition=models.Q(("balance__gte", 0)), name="wallet_balance_gte_0"
+            ),
         ),
         migrations.AddField(
-            model_name='userprofile',
-            name='user',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='profile', to=settings.AUTH_USER_MODEL),
+            model_name="userprofile",
+            name="user",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="profile",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

@@ -235,14 +235,14 @@ Content-Type: application/json
 {
   "email": "user@example.com",
   "username": "john_doe",
-  "password": "secure_password"
+  "password": "secure_password",
+  "upi_id": "example@ybl",
+  "pin_number": "XXXX"
 }
 
 Response (201):
 {
-  "id": 1,
-  "email": "user@example.com",
-  "username": "john_doe"
+    "message": "User registered successfully"
 }
 ```
 
@@ -269,6 +269,23 @@ Response (200):
 }
 ```
 
+#### Profile
+```
+POST /profile/
+Authorization: Bearer <access_token>
+
+Response (200):
+{
+  "user": {
+    "id": 1,
+    "email": "user@example.com",
+    "username": "sampleuser",
+    "upi_id": "sampleuser@bank",
+    "balance": 1500.00
+  }
+}
+```
+
 ### Transaction Endpoints
 
 #### Get All Transactions
@@ -278,15 +295,18 @@ Authorization: Bearer <access_token>
 
 Response (200):
 [
-  {
-    "id": 1,
-    "sender": "user1@example.com",
-    "receiver": "user2@example.com",
-    "amount": 500.00,
-    "timestamp": "2025-12-21T10:30:00Z",
-    "status": "SUCCESS",
-    "balance": 500.00
-  },
+   {
+   "sender": "user1@example.com",
+   "sender_upi_id": "user1@bank",
+   "receiver": "user2@example.com",
+   "receiver_username": "user2",
+   "receiver_upi_id": "user2@bank",
+   "balance": 1000.00,
+   "amount": 250.00,
+   "status": "SUCCESS",
+   "failure_reason": null,
+   "timestamp": "2025-01-15T10:30:45.123456Z"
+   },
   ...
 ]
 ```
@@ -309,18 +329,13 @@ Content-Type: application/json
 
 {
   "receiver_email": "recipient@example.com",
-  "amount": 250.50
+  "amount": 250.50,
+  "pin_number": "XXXX"
 }
 
-Response (201):
+Response (200):
 {
-  "id": 2,
-  "sender": "user1@example.com",
-  "receiver": "recipient@example.com",
-  "amount": 250.50,
-  "timestamp": "2025-12-21T11:00:00Z",
-  "status": "SUCCESS",
-  "balance": 249.50
+    "message": "Transfer successful"
 }
 
 Error (400):
@@ -337,12 +352,48 @@ Error (400):
 
 ### Backend (.env)
 ```env
-# Django Settings
+# Django secret key (dummy value for documentation)
+SECRET_KEY=django-insecure-abcdefghijklmnopqrstuvwxyz1234567890
+
+# Debug mode: "True" or "False"
 DEBUG=False
-SECRET_KEY=your-secret-key-here
+
+# PostgreSQL configuration (dummy values)
+POSTGRES_DB=exampledb
+POSTGRES_USER=dbuser
+POSTGRES_PASSWORD=strongpassword123
+POSTGRES_HOST=db.examplecloud.com
+POSTGRES_PORT=5432
+POSTGRES_SSLMODE=require
 
 
 ### Frontend (.env)
 ```env
-REACT_APP_API_BASE_URL=http://127.0.0.1:8000
+REACT_APP_API_BASE_URL=https://api.example.com
+REACT_APP_WS_BASE_URL=wss://ws.example.com
 ```
+
+AI Tool Usage Log
+
+In compliance with the assignment requirements, AI based development tools were used during the implementation of the LumaPay Real time Transaction and Audit Log System to enhance development efficiency while maintaining correctness, security, and code quality.
+
+AI Assisted Tasks
+v0 (Frontend UI Generation)
+
+Generated the initial React UI structure for core screens including the dashboard, balance display, transaction table, and transfer form.
+Assisted with layout planning and Tailwind CSS based responsive design.
+Provided a starting point for UI components which were later manually reviewed and refined.
+
+ChatGPT (Debugging and Development Support)
+
+Assisted in debugging backend issues related to Django REST Framework authentication and permissions.
+Helped identify and resolve transaction atomicity problems during fund transfers.
+Provided guidance on handling edge cases such as insufficient balance, invalid recipients, and self transfer prevention.
+Supported clarification and validation of real time update logic using WebSockets.
+Assisted in improving API response consistency and error handling.
+
+GitHub Copilot (Code Assistance)
+
+Used for generating boilerplate code for Django models, serializers, and API views.
+Assisted with auto completion of React components, hooks, and context based state management.
+Accelerated repetitive coding tasks such as Axios API integrations and utility functions.

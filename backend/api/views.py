@@ -17,6 +17,7 @@ from asgiref.sync import async_to_sync
 from .models import Wallet, TransactionLog, UserProfile
 from .serializers import SignupSerializer, LoginSerializer
 
+
 class SignupAPIView(APIView):
     def post(self, request):
         serializer = SignupSerializer(data=request.data)
@@ -27,9 +28,9 @@ class SignupAPIView(APIView):
         serializer.save()
 
         return Response(
-            {"message": "User registered successfully"},
-            status=status.HTTP_201_CREATED
+            {"message": "User registered successfully"}, status=status.HTTP_201_CREATED
         )
+
 
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
@@ -50,11 +51,12 @@ class LoginAPIView(APIView):
                     "id": user.id,
                     "email": user.email,
                     "username": user.username,
-                    "balance": user.wallet.balance
-                }
+                    "balance": user.wallet.balance,
+                },
             },
-            status=status.HTTP_200_OK
+            status=status.HTTP_200_OK,
         )
+
 
 class ProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -72,9 +74,10 @@ class ProfileAPIView(APIView):
                     "balance": user.wallet.balance,
                 }
             },
-            status=status.HTTP_200_OK
+            status=status.HTTP_200_OK,
         )
-    
+
+
 class TransferAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -92,12 +95,16 @@ class TransferAPIView(APIView):
             return Response({"error": "Receiver UPI ID not found"}, status=404)
 
         if sender_upi_id == receiver_upi_id:
-            return Response({"error": "You cannot transfer money to yourself"}, status=400)
+            return Response(
+                {"error": "You cannot transfer money to yourself"}, status=400
+            )
         if pin_number != str(request.user.profile.pin_number):
             return Response({"error": "Invalid PIN number"}, status=400)
         try:
             with transaction.atomic():
-                sender_wallet = Wallet.objects.select_for_update().get(user=request.user)
+                sender_wallet = Wallet.objects.select_for_update().get(
+                    user=request.user
+                )
                 receiver_wallet = Wallet.objects.select_for_update().get(user=receiver)
 
                 if sender_wallet.balance < amount:
@@ -114,22 +121,16 @@ class TransferAPIView(APIView):
                     sender_upi_id=sender_upi_id,
                     receiver_upi_id=receiver_upi_id,
                     amount=amount,
-                    status="SUCCESS"
+                    status="SUCCESS",
                 )
                 channel_layer = get_channel_layer()
                 async_to_sync(channel_layer.group_send)(
                     f"user_{request.user.id}",
-                    {
-                        "type": "transaction_event",
-                        "message": "Transfer successful"
-                    }
+                    {"type": "transaction_event", "message": "Transfer successful"},
                 )
                 async_to_sync(channel_layer.group_send)(
                     f"user_{receiver.id}",
-                    {
-                        "type": "transaction_event",
-                        "message": "Money received"
-                    }
+                    {"type": "transaction_event", "message": "Money received"},
                 )
             return Response({"message": "Transfer successful"}, status=200)
 
@@ -141,9 +142,10 @@ class TransferAPIView(APIView):
                 receiver_upi_id=receiver_upi_id,
                 amount=amount,
                 status="FAILED",
-                failure_reason=str(e)
+                failure_reason=str(e),
             )
             return Response({"error": str(e)}, status=400)
+
 
 class TransactionHistoryAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -151,7 +153,9 @@ class TransactionHistoryAPIView(APIView):
     def get(self, request):
         transaction_type = request.query_params.get("type")
         status_filter = request.query_params.get("status")
-        logs = TransactionLog.objects.filter(Q(sender=request.user) | Q(receiver=request.user)).order_by("-created_at")
+        logs = TransactionLog.objects.filter(
+            Q(sender=request.user) | Q(receiver=request.user)
+        ).order_by("-created_at")
         if transaction_type == "SENT":
             logs = logs.filter(sender=request.user)
         elif transaction_type == "RECEIVED":
@@ -160,17 +164,20 @@ class TransactionHistoryAPIView(APIView):
         if status_filter in ["SUCCESS", "FAILED"]:
             logs = logs.filter(status=status_filter)
         wallet = Wallet.objects.get(user=request.user)
-        data = [{
-            "sender": log.sender.email,
-            "sender_upi_id": log.sender_upi_id,
-            "receiver": log.receiver.email,
-            "receiver_username": log.receiver.username,
-            "receiver_upi_id": log.receiver_upi_id,
-            "balance": wallet.balance,
-            "amount": log.amount,
-            "status": log.status,
-            "failure_reason": log.failure_reason,
-            "timestamp": log.created_at
-        } for log in logs]
+        data = [
+            {
+                "sender": log.sender.email,
+                "sender_upi_id": log.sender_upi_id,
+                "receiver": log.receiver.email,
+                "receiver_username": log.receiver.username,
+                "receiver_upi_id": log.receiver_upi_id,
+                "balance": wallet.balance,
+                "amount": log.amount,
+                "status": log.status,
+                "failure_reason": log.failure_reason,
+                "timestamp": log.created_at,
+            }
+            for log in logs
+        ]
 
         return Response(data, status=200)
