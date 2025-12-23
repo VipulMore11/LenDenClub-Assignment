@@ -85,8 +85,9 @@ export default function Dashboard() {
     fetchData()
   }, [fetchData])
   useEffect(() => {
-    fetchProfile()
-  }, [fetchProfile])
+    fetchProfile();
+  }, [fetchProfile]);
+
 
   useEffect(() => {
     if (!user?.id) return
@@ -112,7 +113,7 @@ export default function Dashboard() {
     }
 
     return () => ws.close()
-  }, [user?.id, fetchData])
+  }, [user?.id, fetchData, fetchProfile])
 
   const handleLogout = () => {
     logout()

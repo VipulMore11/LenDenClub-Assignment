@@ -63,7 +63,8 @@ LumaPay peer-to-peer wallet application that simulates real-time fund transfers 
 - **Framework**: Django 6.0
 - **API**: Django REST Framework
 - **Authentication**: SimpleJWT (JSON Web Tokens)
-- **Database**: SQLite (development)
+- **Database**: Postgres
+- **Real-Time Communication**: Web Sockets
 
 ### Frontend
 - **Framework**: React 19

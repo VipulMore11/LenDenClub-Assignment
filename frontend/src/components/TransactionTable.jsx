@@ -29,10 +29,19 @@ export default function TransactionTable({ transactions, currentUserUpiId }) {
         aVal = aType
         bVal = bType
       } else if (sortColumn === "users") {
-        const aParty = a.sender_upi_id === currentUserUpiId ? a.receiver_upi_id : a.sender_upi_id
-        const bParty = b.sender_upi_id === currentUserUpiId ? b.receiver_upi_id : b.sender_upi_id
-        aVal = aParty.toLowerCase()
-        bVal = bParty.toLowerCase()
+        const aParty =
+              a.sender_upi_id === currentUserUpiId
+                ? a.receiver_upi_id
+                : a.sender_upi_id
+
+            const bParty =
+              b.sender_upi_id === currentUserUpiId
+                ? b.receiver_upi_id
+                : b.sender_upi_id
+
+            aVal = (aParty || "").toString().toLowerCase()
+            bVal = (bParty || "").toString().toLowerCase()
+
       } else if (sortColumn === "amount") {
         aVal = Number.parseFloat(a.amount)
         bVal = Number.parseFloat(b.amount)
